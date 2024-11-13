@@ -34,6 +34,8 @@ def get_engine_and_renderer(use_gui=True, use_ray_tracing=False, device="", mipm
         if need_renderer:
             _renderer = sapien.SapienRenderer(default_mipmap_levels=mipmap_levels, offscreen_only=not use_gui,
                                               device=device, do_not_load_texture=no_rgb)
+            # _renderer = sapien.SapienRenderer(default_mipmap_levels=1, offscreen_only=not False,
+            #                                   device="", do_not_load_texture=False)
             _engine.set_renderer(_renderer)
             if no_rgb:
                 print(f"Use trivial renderer without color.")
