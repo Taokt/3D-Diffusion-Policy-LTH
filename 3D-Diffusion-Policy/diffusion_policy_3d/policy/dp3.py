@@ -142,7 +142,8 @@ class DP3(BasePolicy):
             ):
         model = self.model
         scheduler = self.noise_scheduler
-
+        # 记录开始时间
+        diffusion_start_time = time.time()
 
         trajectory = torch.randn(
             size=condition_data.shape, 
@@ -165,11 +166,13 @@ class DP3(BasePolicy):
             # 3. compute previous image: x_t -> x_t-1
             trajectory = scheduler.step(
                 model_output, t, trajectory, ).prev_sample
-            
-                
+               
         # finally make sure conditioning is enforced
         trajectory[condition_mask] = condition_data[condition_mask]   
-
+        # 记录 `diffusion` 推理的结束时间
+        diffusion_end_time = time.time()
+        total_diffusion_time = diffusion_end_time - diffusion_start_time
+        # cprint(f"Total Diffusion Inference Time: {total_diffusion_time:.4f} seconds", 'cyan')
 
         return trajectory
 
@@ -202,9 +205,16 @@ class DP3(BasePolicy):
         local_cond = None
         global_cond = None
         if self.obs_as_global_cond:
+            # 开始计时
+            start_time = time.time()
+
             # condition through global feature
             this_nobs = dict_apply(nobs, lambda x: x[:,:To,...].reshape(-1,*x.shape[2:]))
             nobs_features = self.obs_encoder(this_nobs)
+
+            encoder_time = time.time() - start_time
+            # cprint(f"Point Cloud Encoder Time: {encoder_time:.4f} seconds", 'cyan')
+
             if "cross_attention" in self.condition_type:
                 # treat as a sequence
                 global_cond = nobs_features.reshape(B, self.n_obs_steps, -1)
@@ -236,6 +246,21 @@ class DP3(BasePolicy):
         # unnormalize prediction
         naction_pred = nsample[...,:Da]
         action_pred = self.normalizer['action'].unnormalize(naction_pred)
+
+        # # 提取最终的 `action sequence`
+        # final_action_sequence = action_pred.cpu().numpy()  # 将Tensor转换为numpy数组，方便存储
+
+        # # 将 `action sequence` 保存到文本文件
+        # output_path = "final_action_sequence.txt"  # 目标文件路径
+        # with open(output_path, "w") as file:
+        #     file.write("Final Action Sequence:\n")
+        #     for step, action in enumerate(final_action_sequence):
+        #         action_str = ", ".join(map(str, action.flatten()))
+        #         file.write(f"Step {step}: {action_str}\n")
+
+        # # 输出提示
+        # cprint(f"Final Action Sequence saved to {output_path}", 'green')
+
 
         # get action
         start = To - 1

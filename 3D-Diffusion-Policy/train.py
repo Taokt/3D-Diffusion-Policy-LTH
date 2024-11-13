@@ -355,8 +355,14 @@ class TrainDP3Workspace:
         policy.eval()
         policy.cuda()
 
-        runner_log = env_runner.run(policy)
-        
+        # Measure inference time and capture output
+        start_time = time.time()
+        runner_log = env_runner.run(policy)  # This runs the policy in the environment
+        total_inference_time = time.time() - start_time
+
+        # Print inference time
+        # cprint(f"Total Inference Time: {total_inference_time:.4f} seconds", 'cyan')
+
       
         cprint(f"---------------- Eval Results --------------", 'magenta')
         for key, value in runner_log.items():
