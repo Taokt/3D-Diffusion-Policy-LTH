@@ -64,3 +64,10 @@ TASK_BOUNDS = {
     'default': [-0.5, -1.5, -0.795, 1, -0.4, 100],
 }
 ```
+
+***mjpc_diffusion_wrapper.py*** 和 ***mjpc_wrapper.py*** 
+- **文件路径**：`3D-Diffusion-Policy/diffusion_policy_3d/gym_util/mjpc_diffusion_wrapper.py` 和 `mjpc_wrapper。py`
+- - 在第 117 行和第 125 行中定义了 `use_point_crop`，用于设置默认任务的是否裁剪点云。配置如下：
+```python
+def __init__(self, env, env_name:str, use_point_crop=False):
+```

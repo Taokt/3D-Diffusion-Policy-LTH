@@ -171,6 +171,10 @@ Our code is generally built upon: [Diffusion Policy](https://github.com/real-sta
 
 Contact [Yanjie Ze](https://yanjieze.com) if you have any questions or suggestions.
 
+# Details
+
+See [DETAILS.md](DETAILS.md) for more information. 
+
 # 📝 Citation
 
 If you find our work useful, please consider citing:

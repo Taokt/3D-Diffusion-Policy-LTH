@@ -114,7 +114,7 @@ class MujocoPointcloudWrapperAdroit(gym.Wrapper):
     """
     fetch point cloud from mujoco and add it to obs
     """
-    def __init__(self, env, env_name:str, use_point_crop=True):
+    def __init__(self, env, env_name:str, use_point_crop=False):
         super().__init__(env)
         self.env_name = env_name
         # point cloud cropping
