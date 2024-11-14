@@ -26,7 +26,7 @@ class AdroitRunner(BaseRunner):
                  render_size=84,
                  tqdm_interval_sec=5.0,
                  task_name=None,
-                 use_point_crop=True,
+                 use_point_crop=False,
                  ):
         super().__init__(output_dir)
         self.task_name = task_name
