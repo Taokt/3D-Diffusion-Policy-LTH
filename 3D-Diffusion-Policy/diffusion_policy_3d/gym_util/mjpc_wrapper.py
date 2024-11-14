@@ -17,9 +17,9 @@ ADROIT_PC_TRANSFORM = np.array([
 ENV_POINT_CLOUD_CONFIG = {
     # adroit
     'adroit_hammer': {
-        'min_bound': [-10, -10, -0.099],
+        'min_bound': [-10, -10, -5],
         'max_bound': [10, 10, 10],
-        'num_points': 512,
+        'num_points': 512*4,
         'point_sampling_method': 'fps',
         'cam_names':['top'],
         'transform': ADROIT_PC_TRANSFORM,
@@ -28,9 +28,9 @@ ENV_POINT_CLOUD_CONFIG = {
     },
     
     'adroit_door': {
-        'min_bound': [-10, -10, -0.499],
+        'min_bound': [-10, -10, -5],
         'max_bound': [10, 10, 10],
-        'num_points': 512,
+        'num_points': 512*4,
         'point_sampling_method': 'fps',
         'cam_names':['top'],
         'transform': ADROIT_PC_TRANSFORM,
@@ -39,10 +39,10 @@ ENV_POINT_CLOUD_CONFIG = {
     },
     
     'adroit_pen': {
-        'min_bound': [-10, -10, -0.79],
-        'max_bound': [10, 10, 10],
-        'num_points': 512,
-        'point_sampling_method': 'fps',
+        'min_bound': [-30, -30, -5],
+        'max_bound': [30, 30, 30],
+        'num_points': 100000,
+        'point_sampling_method': 'uniform',
         'cam_names':['vil_camera'],
         'transform': None,
         'scale': np.array([1, 1, 1]),

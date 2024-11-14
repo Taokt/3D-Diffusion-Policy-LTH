@@ -71,3 +71,66 @@ TASK_BOUNDS = {
 ```python
 def __init__(self, env, env_name:str, use_point_crop=False):
 ```
+
+Available options in 'task':
+	adroit_door
+	adroit_hammer
+	adroit_pen
+	dexart_bucket
+	dexart_faucet
+	dexart_laptop
+	dexart_toilet
+	metaworld_assembly
+	metaworld_basketball
+	metaworld_bin-picking
+	metaworld_box-close
+	metaworld_button-press
+	metaworld_button-press-topdown
+	metaworld_button-press-topdown-wall
+	metaworld_button-press-wall
+	metaworld_coffee-button
+	metaworld_coffee-pull
+	metaworld_coffee-push
+	metaworld_dial-turn
+	metaworld_disassemble
+	metaworld_door-close
+	metaworld_door-lock
+	metaworld_door-open
+	metaworld_door-unlock
+	metaworld_drawer-close
+	metaworld_drawer-open
+	metaworld_faucet-close
+	metaworld_faucet-open
+	metaworld_hammer
+	metaworld_hand-insert
+	metaworld_handle-press
+	metaworld_handle-press-side
+	metaworld_handle-pull
+	metaworld_handle-pull-side
+	metaworld_lever-pull
+	metaworld_peg-insert-side
+	metaworld_peg-unplug-side
+	metaworld_pick-out-of-hole
+	metaworld_pick-place
+	metaworld_pick-place-wall
+	metaworld_plate-slide
+	metaworld_plate-slide-back
+	metaworld_plate-slide-back-side
+	metaworld_plate-slide-side
+	metaworld_push
+	metaworld_push-back
+	metaworld_push-wall
+	metaworld_reach
+	metaworld_reach-wall
+	metaworld_shelf-place
+	metaworld_soccer
+	metaworld_stick-pull
+	metaworld_stick-push
+	metaworld_sweep
+	metaworld_sweep-into
+	metaworld_window-close
+	metaworld_window-open
+	realdex_drill
+	realdex_dumpling
+	realdex_pour
+	realdex_roll

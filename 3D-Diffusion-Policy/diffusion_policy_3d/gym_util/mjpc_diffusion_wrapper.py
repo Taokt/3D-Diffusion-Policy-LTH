@@ -22,9 +22,9 @@ ADROIT_HAND_FINGER_NAMES = {'palm',
 ENV_POINT_CLOUD_CONFIG = {
     
     'adroit_hammer': {
-        'min_bound': [-10, -10, -0.099],
+        'min_bound': [-10, -10, -5],
         'max_bound': [10, 10, 10],
-        'num_points': 512,
+        'num_points': 512*4,
         'point_sampling_method': 'fps',
         'cam_names':['top'],
         'transform': ADROIT_PC_TRANSFORM,
@@ -33,9 +33,9 @@ ENV_POINT_CLOUD_CONFIG = {
     },
     
     'adroit_door': {
-       'min_bound': [-10, -10, -0.499],
+       'min_bound': [-10, -10, -5],
         'max_bound': [10, 10, 10],
-        'num_points': 512,
+        'num_points': 512*4,
         'point_sampling_method': 'fps',
         'cam_names':['top'],
         'transform': ADROIT_PC_TRANSFORM,
