@@ -9,7 +9,7 @@ exp_name: "debug"
 
 horizon: 4
 n_obs_steps: 2
-n_action_steps: 4
+n_action_steps: 3
 n_latency_steps: 0
 dataset_obs_steps: ${n_obs_steps}
 keypoint_visible_rate: 1.0
@@ -25,9 +25,9 @@ policy:
   
   diffusion_step_embed_dim: 128
   down_dims:
+  - 128
+  - 256
   - 512
-  - 1024
-  - 2048
   crop_shape:
   - 80
   - 80
@@ -99,7 +99,7 @@ training:
   device: "cuda:0"
   seed: 42
   debug: False
-  resume: True
+  resume: False
   lr_scheduler: cosine
   lr_warmup_steps: 500
   num_epochs: 3000
@@ -119,7 +119,7 @@ logging:
   mode: online
   name: ${training.seed}
   project: dp3
-  resume: true
+  resume: False
   tags:
   - dp3
 
