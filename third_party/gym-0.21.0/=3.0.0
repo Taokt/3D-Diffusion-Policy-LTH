@@ -1,0 +1,2 @@
+Requirement already satisfied: opencv-python in /home/ji0341li/miniconda3/envs/dp3/lib/python3.8/site-packages (4.10.0.84)
+Requirement already satisfied: numpy>=1.17.0 in /home/ji0341li/miniconda3/envs/dp3/lib/python3.8/site-packages (from opencv-python) (1.24.1)
