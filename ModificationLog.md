@@ -1,0 +1,1 @@
+AdDP3-V3: advanced_pointnet_extractor: block_channel = [64, 128, 256, 512] & state_mlp_size=(64, 128, 64)

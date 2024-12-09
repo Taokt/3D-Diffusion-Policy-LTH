@@ -146,12 +146,13 @@ class ConditionalResidualBlock1D(nn.Module):
         return out
 
 
-class ConditionalUnet1D(nn.Module):
+class AdvancedConditionalUnet1D(nn.Module):
     def __init__(self, 
         input_dim,
         local_cond_dim=None,
         global_cond_dim=None,
         diffusion_step_embed_dim=256,
+        # 控制Unet深度
         down_dims=[256,512,1024],
         kernel_size=3,
         n_groups=8,
@@ -212,20 +213,25 @@ class ConditionalUnet1D(nn.Module):
                 kernel_size=kernel_size, n_groups=n_groups,
                 condition_type=condition_type
             ),
+            ################################################
         ])
 
         down_modules = nn.ModuleList([])
         for ind, (dim_in, dim_out) in enumerate(in_out):
             is_last = ind >= (len(in_out) - 1)
             down_modules.append(nn.ModuleList([
+                # resnet1
                 ConditionalResidualBlock1D(
                     dim_in, dim_out, cond_dim=cond_dim, 
                     kernel_size=kernel_size, n_groups=n_groups,
                     condition_type=condition_type),
+                # resnet2
                 ConditionalResidualBlock1D(
                     dim_out, dim_out, cond_dim=cond_dim, 
                     kernel_size=kernel_size, n_groups=n_groups,
-                    condition_type=condition_type),  
+                    condition_type=condition_type),
+                ################################################
+                # downsample
                 Downsample1d(dim_out) if not is_last else nn.Identity()
             ]))
 
@@ -241,6 +247,7 @@ class ConditionalUnet1D(nn.Module):
                     dim_in, dim_in, cond_dim=cond_dim,
                     kernel_size=kernel_size, n_groups=n_groups,
                     condition_type=condition_type),
+                ################################################
                 Upsample1d(dim_in) if not is_last else nn.Identity()
             ]))
         
@@ -315,6 +322,7 @@ class ConditionalUnet1D(nn.Module):
                 x = resnet2(x)
             h.append(x)
             x = downsample(x)
+            # cprint(f"[Down] x shape: {x.shape}, h shape: {h[-1].shape}", "yellow")
 
 
         for mid_module in self.mid_modules:
@@ -322,9 +330,11 @@ class ConditionalUnet1D(nn.Module):
                 x = mid_module(x, global_feature)
             else:
                 x = mid_module(x)
+            # cprint(f"[Middle] x shape: {x.shape}", "yellow")
 
 
         for idx, (resnet, resnet2, upsample) in enumerate(self.up_modules):
+            # cprint(f"[Up] x shape: {x.shape}, h shape: {h[-1].shape}", "yellow")
             x = torch.cat((x, h.pop()), dim=1)
             if self.use_up_condition:
                 x = resnet(x, global_feature)

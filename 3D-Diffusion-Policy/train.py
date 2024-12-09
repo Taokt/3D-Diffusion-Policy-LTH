@@ -51,6 +51,7 @@ class TrainDP3Workspace:
 
         # configure model
         self.model: DP3 = hydra.utils.instantiate(cfg.policy)
+        cprint(f"[Train] model: {self.model}", "green")
 
         self.ema_model: DP3 = None
         if cfg.training.use_ema:

@@ -12,13 +12,13 @@ import pytorch3d.ops as torch3d_ops
 
 from diffusion_policy_3d.model.common.normalizer import LinearNormalizer
 from diffusion_policy_3d.policy.base_policy import BasePolicy
-from diffusion_policy_3d.model.diffusion.conditional_unet1d import ConditionalUnet1D
+from diffusion_policy_3d.model.diffusion.advanced_conditional_unet1d import AdvancedConditionalUnet1D
 from diffusion_policy_3d.model.diffusion.mask_generator import LowdimMaskGenerator
 from diffusion_policy_3d.common.pytorch_util import dict_apply
 from diffusion_policy_3d.common.model_util import print_params
-from diffusion_policy_3d.model.vision.pointnet_extractor import DP3Encoder
+from diffusion_policy_3d.model.vision.advanced_pointnet_extractor import DP3Encoder
 
-class DP3(BasePolicy):
+class AdvancedDP3(BasePolicy):
     def __init__(self, 
             shape_meta: dict,
             noise_scheduler: DDPMScheduler,
@@ -87,7 +87,7 @@ class DP3(BasePolicy):
 
 
 
-        model = ConditionalUnet1D(
+        model = AdvancedConditionalUnet1D(
             input_dim=input_dim,
             local_cond_dim=None,
             global_cond_dim=global_cond_dim,
@@ -399,3 +399,4 @@ class DP3(BasePolicy):
         
         return loss, loss_dict
 
+__all__ = ['AdvancedDP3']
