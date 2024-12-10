@@ -32,6 +32,8 @@ from diffusion_policy_3d.common.pytorch_util import dict_apply, optimizer_to
 from diffusion_policy_3d.model.diffusion.ema_model import EMAModel
 from diffusion_policy_3d.model.common.lr_scheduler import get_scheduler
 
+from torch.utils.data import random_split, DataLoader
+
 OmegaConf.register_new_resolver("eval", eval, replace=True)
 
 class TrainDP3Workspace:
@@ -88,7 +90,7 @@ class TrainDP3Workspace:
             RUN_CKPT = True
             verbose = False
         
-        RUN_VALIDATION = False # reduce time cost
+        RUN_VALIDATION = True # reduce time cost
         
         # resume training
         if cfg.training.resume:
@@ -102,12 +104,49 @@ class TrainDP3Workspace:
         dataset = hydra.utils.instantiate(cfg.task.dataset)
 
         assert isinstance(dataset, BaseDataset), print(f"dataset must be BaseDataset, got {type(dataset)}")
-        train_dataloader = DataLoader(dataset, **cfg.dataloader)
-        normalizer = dataset.get_normalizer()
+        # train_dataloader = DataLoader(dataset, **cfg.dataloader)
+        # normalizer = dataset.get_normalizer()
 
-        # configure validation dataset
-        val_dataset = dataset.get_validation_dataset()
-        val_dataloader = DataLoader(val_dataset, **cfg.val_dataloader)
+        # # configure validation dataset
+        # val_dataset = dataset.get_validation_dataset()
+        # val_dataloader = DataLoader(val_dataset, **cfg.val_dataloader)
+
+        ##########################################################################
+        # print("Size of data:", len(dataset))
+        # print("Size of train data:", len(train_dataloader))
+        # print("Size of validation data:", len(val_dataloader))
+
+        # configure splited dataset
+        dataset_size = len(dataset)  # Get the total number of samples
+        train_ratio, valid_ratio, test_ratio = 0.7, 0.2, 0.1  # Ratios for split
+
+        # Compute the sizes of each split
+        train_size = int(dataset_size * train_ratio)
+        valid_size = int(dataset_size * valid_ratio)
+        test_size = dataset_size - train_size - valid_size  # Ensure all samples are used
+
+        # Split the dataset
+        train_dataset, valid_dataset, test_dataset = random_split(
+            dataset, [train_size, valid_size, test_size],
+            generator=torch.Generator().manual_seed(42)  # For reproducibility
+        )
+
+        # Create DataLoaders for each split
+        train_dataloader = DataLoader(train_dataset, **cfg.dataloader)
+        normalizer = dataset.get_normalizer()
+        val_dataloader = DataLoader(valid_dataset, **cfg.val_dataloader)
+        test_dataloader = DataLoader(test_dataset, **cfg.val_dataloader)
+
+        # Print sizes of each split
+        cprint(f"Total dataset size: {dataset_size}","cyan")
+        cprint(f"Train dataset size: {len(train_dataset)}","cyan")
+        cprint(f"Validation dataset size: {len(valid_dataset)}","cyan")
+        cprint(f"Test dataset size: {len(test_dataset)}","cyan")
+
+        cprint(f"Length of train dataloader: {len(train_dataloader)}","cyan")
+        cprint(f"Length of validation dataloader: {len(val_dataloader)}","cyan")
+        cprint(f"Length of test dataloader: {len(test_dataloader)}","cyan")
+        ##########################################################################
 
         self.model.set_normalizer(normalizer)
         if cfg.training.use_ema:
@@ -325,6 +364,54 @@ class TrainDP3Workspace:
 
                 if topk_ckpt_path is not None:
                     self.save_checkpoint(path=topk_ckpt_path)
+
+            ############################################################################################
+            # ========= Test the policy on test data ==========
+            with torch.no_grad():
+                policy = self.model
+                if cfg.training.use_ema:
+                    policy = self.ema_model  # Use the EMA model if enabled
+                policy.eval()
+
+                test_predictions = []
+                test_ground_truths = []
+
+                with tqdm.tqdm(test_dataloader, desc="Testing on test data", leave=False) as tepoch:
+                    for batch_idx, batch in enumerate(tepoch):
+                        # Move the batch to the appropriate device
+                        batch = dict_apply(batch, lambda x: x.to(device, non_blocking=True))
+                        
+                        # Extract observations and ground truth
+                        obs_dict = batch['obs']
+                        gt_action = batch['action']
+
+                        # Get predictions
+                        result = policy.predict_action(obs_dict)
+                        pred_action = result['action_pred']
+
+                        cprint(f"Shape of output: {np.shape(pred_action)}","cyan")
+                        # print(pred_action)
+
+                        # Store predictions and ground truths for analysis
+                        test_predictions.append(pred_action.cpu())
+                        test_ground_truths.append(gt_action.cpu())
+
+                # Concatenate all predictions and ground truths
+                test_predictions = torch.cat(test_predictions, dim=0)
+                test_ground_truths = torch.cat(test_ground_truths, dim=0)
+
+                # Compute evaluation metrics (e.g., MSE)
+                mse = torch.nn.functional.mse_loss(test_predictions, test_ground_truths)
+                cprint(f"Test MSE: {mse.item():.4f}","cyan")
+
+                # # Optionally, save predictions to a file
+                # predictions_path = os.path.join(self.output_dir, 'test_predictions.pth')
+                # torch.save({
+                #     'predictions': test_predictions,
+                #     'ground_truths': test_ground_truths
+                # }, predictions_path)
+                # print(f"Test predictions saved to: {predictions_path}")
+            ############################################################################################
             # ========= eval end for this epoch ==========
             policy.train()
 
