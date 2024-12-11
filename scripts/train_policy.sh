@@ -1,8 +1,4 @@
-# Examples:
-# bash scripts/train_policy.sh dp3 adroit_hammer 0322 0 0
-# bash scripts/train_policy.sh dp3 dexart_laptop 0322 0 0
-# bash scripts/train_policy.sh simple_dp3 adroit_hammer 0322 0 0
-# bash scripts/train_policy.sh dp3 metaworld_basketball 0602 0 0
+# bash scripts/train_policy.sh advanced_dp3 isaaclab_None 1211 0 0
 
 
 
@@ -39,7 +35,7 @@ cd 3D-Diffusion-Policy
 
 export HYDRA_FULL_ERROR=1 
 export CUDA_VISIBLE_DEVICES=${gpu_id}
-python train.py --config-name=${config_name}.yaml \
+python custom_train.py --config-name=${config_name}.yaml \
                             task=${task_name} \
                             hydra.run.dir=${run_dir} \
                             training.debug=$DEBUG \
