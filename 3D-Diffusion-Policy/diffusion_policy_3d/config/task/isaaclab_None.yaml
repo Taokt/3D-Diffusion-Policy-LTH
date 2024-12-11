@@ -6,13 +6,13 @@ shape_meta: &shape_meta
   # acceptable types: rgb, low_dim
   obs:
     point_cloud:
-      shape: [512, 3]
+      shape: [1024, 3]
       type: point_cloud
     agent_pos:
-      shape: [24]
+      shape: [18]
       type: low_dim
   action:
-    shape: [28]
+    shape: [18]
 
 # env_runner:
 #   _target_: diffusion_policy_3d.env_runner.adroit_runner.AdroitRunner

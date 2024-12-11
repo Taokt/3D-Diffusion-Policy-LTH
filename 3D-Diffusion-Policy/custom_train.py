@@ -53,7 +53,7 @@ class TrainDP3Workspace:
 
         # configure model
         self.model: DP3 = hydra.utils.instantiate(cfg.policy)
-        cprint(f"[Train] model: {self.model}", "green")
+        # cprint(f"[Train] model: {self.model}", "green")
 
         self.ema_model: DP3 = None
         if cfg.training.use_ema:
@@ -82,12 +82,15 @@ class TrainDP3Workspace:
             cfg.training.checkpoint_every = 1
             cfg.training.val_every = 1
             cfg.training.sample_every = 1
+            
             RUN_ROLLOUT = True
             RUN_CKPT = False
             verbose = True
         else:
+            # 模拟agent与environment交互的过程
             RUN_ROLLOUT = True
-            RUN_CKPT = True
+            # 存模型
+            RUN_CKPT = False
             verbose = False
         
         RUN_VALIDATION = True # reduce time cost
@@ -102,6 +105,7 @@ class TrainDP3Workspace:
         # configure dataset
         dataset: BaseDataset
         dataset = hydra.utils.instantiate(cfg.task.dataset)
+        cprint(f"Type of dataset: {type(dataset)}","blue")
 
         assert isinstance(dataset, BaseDataset), print(f"dataset must be BaseDataset, got {type(dataset)}")
         # train_dataloader = DataLoader(dataset, **cfg.dataloader)
@@ -232,6 +236,7 @@ class TrainDP3Workspace:
                 
                     # compute loss
                     t1_1 = time.time()
+                    # raw_loss 是batch loss
                     raw_loss, loss_dict = self.model.compute_loss(batch)
                     loss = raw_loss / cfg.training.gradient_accumulate_every
                     loss.backward()
@@ -341,6 +346,7 @@ class TrainDP3Workspace:
 
             # if env_runner is None:
             #     step_log['test_mean_score'] = - train_loss
+            # 用于判断是否保存模型
             step_log['test_mean_score'] = - train_loss
                 
             # checkpoint
