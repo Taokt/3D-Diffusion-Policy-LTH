@@ -6,7 +6,7 @@ shape_meta: &shape_meta
   # acceptable types: rgb, low_dim
   obs:
     point_cloud:
-      shape: [512, 3]
+      shape: [1024, 3]
       type: point_cloud
     agent_pos:
       shape: [24]

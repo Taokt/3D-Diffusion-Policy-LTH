@@ -304,26 +304,26 @@ class TrainDP3Workspace:
                 step_log['test_mean_score'] = - train_loss
                 
             # checkpoint
-            if (self.epoch % cfg.training.checkpoint_every) == 0 and cfg.checkpoint.save_ckpt:
-                # checkpointing
-                if cfg.checkpoint.save_last_ckpt:
-                    self.save_checkpoint()
-                if cfg.checkpoint.save_last_snapshot:
-                    self.save_snapshot()
+            # if (self.epoch % cfg.training.checkpoint_every) == 0 and cfg.checkpoint.save_ckpt:
+            #     # checkpointing
+            #     if cfg.checkpoint.save_last_ckpt:
+            #         self.save_checkpoint()
+            #     if cfg.checkpoint.save_last_snapshot:
+            #         self.save_snapshot()
 
-                # sanitize metric names
-                metric_dict = dict()
-                for key, value in step_log.items():
-                    new_key = key.replace('/', '_')
-                    metric_dict[new_key] = value
+            #     # sanitize metric names
+            #     metric_dict = dict()
+            #     for key, value in step_log.items():
+            #         new_key = key.replace('/', '_')
+            #         metric_dict[new_key] = value
                 
-                # We can't copy the last checkpoint here
-                # since save_checkpoint uses threads.
-                # therefore at this point the file might have been empty!
-                topk_ckpt_path = topk_manager.get_ckpt_path(metric_dict)
+            #     # We can't copy the last checkpoint here
+            #     # since save_checkpoint uses threads.
+            #     # therefore at this point the file might have been empty!
+            #     topk_ckpt_path = topk_manager.get_ckpt_path(metric_dict)
 
-                if topk_ckpt_path is not None:
-                    self.save_checkpoint(path=topk_ckpt_path)
+            #     if topk_ckpt_path is not None:
+            #         self.save_checkpoint(path=topk_ckpt_path)
             # ========= eval end for this epoch ==========
             policy.train()
 

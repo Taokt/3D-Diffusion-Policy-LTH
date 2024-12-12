@@ -105,20 +105,16 @@ class TrainDP3Workspace:
         # configure dataset
         dataset: BaseDataset
         dataset = hydra.utils.instantiate(cfg.task.dataset)
-        cprint(f"Type of dataset: {type(dataset)}","blue")
+
+
+        sample = dataset[0]
+        print(f"Sample keys: {sample.keys()}")
+        print(f"Point cloud shape: {sample['obs']['point_cloud'].shape}")
+        print(f"Agent position shape: {sample['obs']['agent_pos'].shape}")
+        print(f"Action shape: {sample['action'].shape}")
+
 
         assert isinstance(dataset, BaseDataset), print(f"dataset must be BaseDataset, got {type(dataset)}")
-        # train_dataloader = DataLoader(dataset, **cfg.dataloader)
-        # normalizer = dataset.get_normalizer()
-
-        # # configure validation dataset
-        # val_dataset = dataset.get_validation_dataset()
-        # val_dataloader = DataLoader(val_dataset, **cfg.val_dataloader)
-
-        ##########################################################################
-        # print("Size of data:", len(dataset))
-        # print("Size of train data:", len(train_dataloader))
-        # print("Size of validation data:", len(val_dataloader))
 
         # configure splited dataset
         dataset_size = len(dataset)  # Get the total number of samples
@@ -176,14 +172,6 @@ class TrainDP3Workspace:
                 cfg.ema,
                 model=self.ema_model)
 
-        # # configure env
-        # env_runner: BaseRunner
-        # env_runner = hydra.utils.instantiate(
-        #     cfg.task.env_runner,
-        #     output_dir=self.output_dir)
-
-        # if env_runner is not None:
-        #     assert isinstance(env_runner, BaseRunner)
         
         cfg.logging.name = str(cfg.logging.name)
         cprint("-----------------------------", "yellow")
@@ -350,26 +338,26 @@ class TrainDP3Workspace:
             step_log['test_mean_score'] = - train_loss
                 
             # checkpoint
-            if (self.epoch % cfg.training.checkpoint_every) == 0 and cfg.checkpoint.save_ckpt:
-                # checkpointing
-                if cfg.checkpoint.save_last_ckpt:
-                    self.save_checkpoint()
-                if cfg.checkpoint.save_last_snapshot:
-                    self.save_snapshot()
+            # if (self.epoch % cfg.training.checkpoint_every) == 0 and cfg.checkpoint.save_ckpt:
+            #     # checkpointing
+            #     if cfg.checkpoint.save_last_ckpt:
+            #         self.save_checkpoint()
+            #     if cfg.checkpoint.save_last_snapshot:
+            #         self.save_snapshot()
 
-                # sanitize metric names
-                metric_dict = dict()
-                for key, value in step_log.items():
-                    new_key = key.replace('/', '_')
-                    metric_dict[new_key] = value
+            #     # sanitize metric names
+            #     metric_dict = dict()
+            #     for key, value in step_log.items():
+            #         new_key = key.replace('/', '_')
+            #         metric_dict[new_key] = value
                 
-                # We can't copy the last checkpoint here
-                # since save_checkpoint uses threads.
-                # therefore at this point the file might have been empty!
-                topk_ckpt_path = topk_manager.get_ckpt_path(metric_dict)
+            #     # We can't copy the last checkpoint here
+            #     # since save_checkpoint uses threads.
+            #     # therefore at this point the file might have been empty!
+            #     topk_ckpt_path = topk_manager.get_ckpt_path(metric_dict)
 
-                if topk_ckpt_path is not None:
-                    self.save_checkpoint(path=topk_ckpt_path)
+            #     if topk_ckpt_path is not None:
+            #         self.save_checkpoint(path=topk_ckpt_path)
 
             ############################################################################################
             # ========= Test the policy on test data ==========
@@ -395,7 +383,7 @@ class TrainDP3Workspace:
                         result = policy.predict_action(obs_dict)
                         pred_action = result['action_pred']
 
-                        cprint(f"Shape of output: {np.shape(pred_action)}","cyan")
+                        # cprint(f"Shape of output: {np.shape(pred_action)}","cyan")
                         # print(pred_action)
 
                         # Store predictions and ground truths for analysis
@@ -408,7 +396,7 @@ class TrainDP3Workspace:
 
                 # Compute evaluation metrics (e.g., MSE)
                 mse = torch.nn.functional.mse_loss(test_predictions, test_ground_truths)
-                cprint(f"Test MSE: {mse.item():.4f}","cyan")
+                # cprint(f"Test MSE: {mse.item():.4f}","cyan")
 
                 # # Optionally, save predictions to a file
                 # predictions_path = os.path.join(self.output_dir, 'test_predictions.pth')

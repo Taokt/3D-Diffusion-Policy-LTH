@@ -213,6 +213,11 @@ class AdvancedConditionalUnet1D(nn.Module):
                 kernel_size=kernel_size, n_groups=n_groups,
                 condition_type=condition_type
             ),
+            ConditionalResidualBlock1D(
+                mid_dim, mid_dim, cond_dim=cond_dim,
+                kernel_size=kernel_size, n_groups=n_groups,
+                condition_type=condition_type
+            ),
             ################################################
         ])
 
@@ -230,6 +235,11 @@ class AdvancedConditionalUnet1D(nn.Module):
                     dim_out, dim_out, cond_dim=cond_dim, 
                     kernel_size=kernel_size, n_groups=n_groups,
                     condition_type=condition_type),
+                # resnet3  
+                ConditionalResidualBlock1D(
+                    dim_out, dim_out, cond_dim=cond_dim, 
+                    kernel_size=kernel_size, n_groups=n_groups,
+                    condition_type=condition_type),
                 ################################################
                 # downsample
                 Downsample1d(dim_out) if not is_last else nn.Identity()
@@ -241,6 +251,10 @@ class AdvancedConditionalUnet1D(nn.Module):
             up_modules.append(nn.ModuleList([
                 ConditionalResidualBlock1D(
                     dim_out*2, dim_in, cond_dim=cond_dim,
+                    kernel_size=kernel_size, n_groups=n_groups,
+                    condition_type=condition_type),
+                ConditionalResidualBlock1D(
+                    dim_in, dim_in, cond_dim=cond_dim,
                     kernel_size=kernel_size, n_groups=n_groups,
                     condition_type=condition_type),
                 ConditionalResidualBlock1D(
@@ -309,7 +323,7 @@ class AdvancedConditionalUnet1D(nn.Module):
         
         x = sample
         h = []
-        for idx, (resnet, resnet2, downsample) in enumerate(self.down_modules):
+        for idx, (resnet, resnet2,resnet3,downsample) in enumerate(self.down_modules):
             if self.use_down_condition:
                 x = resnet(x, global_feature)
                 if idx == 0 and len(h_local) > 0:
@@ -333,7 +347,7 @@ class AdvancedConditionalUnet1D(nn.Module):
             # cprint(f"[Middle] x shape: {x.shape}", "yellow")
 
 
-        for idx, (resnet, resnet2, upsample) in enumerate(self.up_modules):
+        for idx, (resnet, resnet2, resnet3, upsample) in enumerate(self.up_modules):
             # cprint(f"[Up] x shape: {x.shape}, h shape: {h[-1].shape}", "yellow")
             x = torch.cat((x, h.pop()), dim=1)
             if self.use_up_condition:
